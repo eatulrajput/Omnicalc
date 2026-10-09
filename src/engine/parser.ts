@@ -57,10 +57,17 @@ class Parser {
   }
 
   private unary(): ASTNode {
-    if (this.currentTokenIndex < this.tokens.length && this.isMinusOperator()) {
-      this.currentTokenIndex++;
-      const operand = this.unary();
-      return { type: 'UnaryOp', operator: '-', operand };
+    if (this.currentTokenIndex < this.tokens.length) {
+      if (this.isMinusOperator()) {
+        this.currentTokenIndex++;
+        const operand = this.unary();
+        return { type: 'UnaryOp', operator: '-', operand };
+      }
+      if (this.isPlusOperator()) {
+        this.currentTokenIndex++;
+        // Unary plus doesn't change the value, just parse and return the operand
+        return this.unary();
+      }
     }
     return this.primary();
   }
@@ -126,6 +133,11 @@ class Parser {
   private isMinusOperator(): boolean {
     const t = this.tokens[this.currentTokenIndex];
     return t?.type === TokenType.OPERATOR && t.value === '-';
+  }
+
+  private isPlusOperator(): boolean {
+    const t = this.tokens[this.currentTokenIndex];
+    return t?.type === TokenType.OPERATOR && t.value === '+';
   }
 }
 
