@@ -15,16 +15,16 @@ import { Token, TokenType, ASTNode, CalculationError } from './types';
  */
 class Parser {
   private tokens: Token[];
-  private pos: number;
+  private currentTokenIndex: number;
 
   constructor(tokens: Token[]) {
     this.tokens = tokens;
-    this.pos = 0;
+    this.currentTokenIndex = 0;
   }
 
   parse(): ASTNode {
     const result = this.expression();
-    if (this.pos < this.tokens.length) {
+    if (this.currentTokenIndex < this.tokens.length) {
       throw new Error(CalculationError.INVALID_EXPRESSION);
     }
     return result;
@@ -33,9 +33,9 @@ class Parser {
   private expression(): ASTNode {
     let left = this.term();
 
-    while (this.pos < this.tokens.length && this.isAddSubOperator()) {
-      const op = this.tokens[this.pos]!.value;
-      this.pos++;
+    while (this.currentTokenIndex < this.tokens.length && this.isAddSubOperator()) {
+      const op = this.tokens[this.currentTokenIndex]!.value;
+      this.currentTokenIndex++;
       const right = this.term();
       left = { type: 'BinaryOp', operator: op, left, right };
     }
@@ -46,9 +46,9 @@ class Parser {
   private term(): ASTNode {
     let left = this.unary();
 
-    while (this.pos < this.tokens.length && this.isMulDivOperator()) {
-      const op = this.tokens[this.pos]!.value;
-      this.pos++;
+    while (this.currentTokenIndex < this.tokens.length && this.isMulDivOperator()) {
+      const op = this.tokens[this.currentTokenIndex]!.value;
+      this.currentTokenIndex++;
       const right = this.unary();
       left = { type: 'BinaryOp', operator: op, left, right };
     }
@@ -57,8 +57,8 @@ class Parser {
   }
 
   private unary(): ASTNode {
-    if (this.pos < this.tokens.length && this.isMinusOperator()) {
-      this.pos++;
+    if (this.currentTokenIndex < this.tokens.length && this.isMinusOperator()) {
+      this.currentTokenIndex++;
       const operand = this.unary();
       return { type: 'UnaryOp', operator: '-', operand };
     }
@@ -66,7 +66,7 @@ class Parser {
   }
 
   private primary(): ASTNode {
-    const token = this.tokens[this.pos];
+    const token = this.tokens[this.currentTokenIndex];
 
     if (!token) {
       throw new Error(CalculationError.INVALID_EXPRESSION);
@@ -74,22 +74,32 @@ class Parser {
 
     // Number literal
     if (token.type === TokenType.NUMBER) {
-      this.pos++;
+      this.currentTokenIndex++;
       return { type: 'Number', value: new Decimal(token.value) };
     }
 
     // Parenthesized sub-expression
     if (token.type === TokenType.LEFT_PAREN) {
-      this.pos++; // consume '('
+      this.currentTokenIndex++; // consume '('
+      
+      // Handle empty parentheses '()'
+      if (
+        this.currentTokenIndex < this.tokens.length &&
+        this.tokens[this.currentTokenIndex]!.type === TokenType.RIGHT_PAREN
+      ) {
+        this.currentTokenIndex++; // consume ')'
+        return { type: 'Number', value: new Decimal(0) };
+      }
+
       const node = this.expression();
 
       if (
-        this.pos >= this.tokens.length ||
-        this.tokens[this.pos]!.type !== TokenType.RIGHT_PAREN
+        this.currentTokenIndex >= this.tokens.length ||
+        this.tokens[this.currentTokenIndex]!.type !== TokenType.RIGHT_PAREN
       ) {
         throw new Error(CalculationError.INVALID_EXPRESSION);
       }
-      this.pos++; // consume ')'
+      this.currentTokenIndex++; // consume ')'
       return node;
     }
 
@@ -98,7 +108,7 @@ class Parser {
 
   // ── Helpers ────────────────────────────────────────────────
   private isAddSubOperator(): boolean {
-    const t = this.tokens[this.pos];
+    const t = this.tokens[this.currentTokenIndex];
     return (
       t?.type === TokenType.OPERATOR &&
       (t.value === '+' || t.value === '-')
@@ -106,7 +116,7 @@ class Parser {
   }
 
   private isMulDivOperator(): boolean {
-    const t = this.tokens[this.pos];
+    const t = this.tokens[this.currentTokenIndex];
     return (
       t?.type === TokenType.OPERATOR &&
       (t.value === '×' || t.value === '÷')
@@ -114,7 +124,7 @@ class Parser {
   }
 
   private isMinusOperator(): boolean {
-    const t = this.tokens[this.pos];
+    const t = this.tokens[this.currentTokenIndex];
     return t?.type === TokenType.OPERATOR && t.value === '-';
   }
 }
