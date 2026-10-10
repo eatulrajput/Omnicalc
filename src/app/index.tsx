@@ -31,18 +31,28 @@ export default function CalculatorScreen() {
       <ErrorBoundary>
         {/* ── Toolbar ───────────────────────────────────────── */}
         <View style={styles.toolbar}>
-          <ThemeToggle />
           <TouchableOpacity
-            style={styles.historyBtn}
+            style={styles.iconBtn}
             onPress={handleHistoryPress}
             activeOpacity={0.7}
           >
-            <Text style={styles.historyIcon}>🕐</Text>
+            <Text style={[styles.icon, { color: colors.textSecondary }]}>↺</Text>
+          </TouchableOpacity>
+
+          <TouchableOpacity style={styles.iconBtn} activeOpacity={0.7}>
+            <Text style={[styles.icon, { color: colors.textSecondary }]}>⋮</Text>
           </TouchableOpacity>
         </View>
 
         {/* ── Display ───────────────────────────────────────── */}
         <Display />
+
+        {/* ── Chevron Toggle ─────────────────────────────────── */}
+        <View style={styles.chevronContainer}>
+          <Text style={[styles.chevron, { color: colors.textSecondary }]}>
+            {'< >'} 
+          </Text>
+        </View>
 
         {/* ── Keypad ────────────────────────────────────────── */}
         <Keypad />
@@ -63,15 +73,25 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    paddingHorizontal: 16,
-    paddingVertical: 4,
+    paddingHorizontal: 20,
+    paddingVertical: 12,
   },
-  historyBtn: {
-    width: 40,
-    height: 40,
-    borderRadius: 20,
+  iconBtn: {
+    padding: 8,
     justifyContent: 'center',
     alignItems: 'center',
   },
-  historyIcon: { fontSize: 20 },
+  icon: {
+    fontSize: 24,
+    fontWeight: '300',
+  },
+  chevronContainer: {
+    paddingHorizontal: 24,
+    paddingBottom: 8,
+    alignItems: 'flex-start',
+  },
+  chevron: {
+    fontSize: 20,
+    transform: [{ rotate: '90deg' }],
+  },
 });

@@ -87,7 +87,7 @@ export function CalcButton({
           width: size,
           height: size,
           backgroundColor: bgColor[variant],
-          borderRadius: size * 0.26,
+          borderRadius: size / 2,
         },
       ]}
     >
@@ -96,7 +96,7 @@ export function CalcButton({
           styles.label,
           {
             color: textColor[variant],
-            fontSize: variant === 'function' ? size * 0.3 : size * 0.36,
+            fontSize: variant === 'function' ? size * 0.35 : size * 0.4,
           },
         ]}
       >
@@ -110,13 +110,8 @@ const styles = StyleSheet.create({
   button: {
     justifyContent: 'center',
     alignItems: 'center',
-    elevation: 3,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.2,
-    shadowRadius: 4,
   },
   label: {
-    fontWeight: '500',
+    fontWeight: '300',
   },
 });

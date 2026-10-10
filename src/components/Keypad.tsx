@@ -49,9 +49,11 @@ export function Keypad() {
     variant: Variant;
   }
 
+  const backspace = useCalculatorStore((s) => s.backspace);
+
   const rows: BtnDef[][] = [
     [
-      { label: clearLabel, onPress: clear, variant: 'function' },
+      { label: clearLabel, onPress: clear, variant: 'equals' }, // Yellow background like equals
       { label: '( )', onPress: inputParen, variant: 'function' },
       { label: '%', onPress: inputPercent, variant: 'function' },
       { label: '÷', onPress: () => inputOperator('÷'), variant: 'operator' },
@@ -75,9 +77,9 @@ export function Keypad() {
       { label: '+', onPress: () => inputOperator('+'), variant: 'operator' },
     ],
     [
-      { label: '±', onPress: toggleSign, variant: 'function' },
       { label: '0', onPress: () => inputDigit('0'), variant: 'number' },
       { label: '.', onPress: inputDecimal, variant: 'number' },
+      { label: '⌫', onPress: backspace, variant: 'number' },
       { label: '=', onPress: evaluate, variant: 'equals' },
     ],
   ];
