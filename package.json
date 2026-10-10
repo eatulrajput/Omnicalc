@@ -5,6 +5,7 @@
   "dependencies": {
     "@expo/ui": "~57.0.12",
     "@react-native-async-storage/async-storage": "^3.1.1",
+    "@react-native-vector-icons/ionicons": "^13.1.4",
     "decimal.js": "^10.6.0",
     "expo": "~57.0.15",
     "expo-constants": "~57.0.13",

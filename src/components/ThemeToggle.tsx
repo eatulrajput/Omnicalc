@@ -2,11 +2,13 @@ import React from 'react';
 import { TouchableOpacity, Text, StyleSheet } from 'react-native';
 import * as Haptics from 'expo-haptics';
 import { useThemeStore, type ThemeMode } from '../store/themeStore';
+import Ionicons from '@react-native-vector-icons/ionicons';
+import { useTheme } from '../theme/useTheme';
 
-const modeIcons: Record<ThemeMode, string> = {
-  light: '☀️',
-  dark: '🌙',
-  system: '⚙️',
+const modeIcons: Record<ThemeMode, React.ComponentProps<typeof Ionicons>['name']> = {
+  light: 'sunny',
+  dark: 'moon',
+  system: 'settings-outline',
 };
 
 /**
@@ -21,13 +23,15 @@ export function ThemeToggle() {
     cycleMode();
   };
 
+  const { colors } = useTheme();
+
   return (
     <TouchableOpacity
       style={styles.button}
       onPress={handlePress}
       activeOpacity={0.7}
     >
-      <Text style={styles.icon}>{modeIcons[mode]}</Text>
+      <Ionicons name={modeIcons[mode]} size={20} color={colors.textPrimary} style={styles.icon} />
     </TouchableOpacity>
   );
 }
