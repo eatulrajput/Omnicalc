@@ -1,11 +1,11 @@
 {
   "expo": {
-    "name": "Omnicalc",
+    "name": "Omni Calc One",
     "slug": "Omnicalc",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/images/icon.png",
-    "scheme": "omnicalc",
+    "scheme": "omni_calc",
     "userInterfaceStyle": "automatic",
     "ios": {
       "icon": "./assets/expo.icon"
@@ -28,9 +28,9 @@
       [
         "expo-splash-screen",
         {
-          "backgroundColor": "#208AEF",
-          "image": "./assets/images/splash-icon.png",
-          "imageWidth": 76
+          "backgroundColor": "#F4F0E6",
+          "image": "./assets/images/splash-screen.png",
+          "imageWidth": 400
         }
       ]
     ],
