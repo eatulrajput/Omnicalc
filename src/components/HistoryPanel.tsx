@@ -12,6 +12,7 @@ import { useTheme } from '../theme/useTheme';
 import { useCalculatorStore } from '../store/calculatorStore';
 import { formatExpression, formatDisplayNumber } from '../utils/formatting';
 import type { HistoryEntry } from '../engine';
+import Ionicons from '@react-native-vector-icons/ionicons';
 
 interface HistoryPanelProps {
   visible: boolean;
@@ -93,7 +94,7 @@ export function HistoryPanel({ visible, onClose }: HistoryPanelProps) {
           {/* List or empty state */}
           {history.length === 0 ? (
             <View style={styles.emptyContainer}>
-              <Text style={styles.emptyEmoji}>📝</Text>
+              <Ionicons name="document-text-outline" size={56} color={colors.textSecondary} style={styles.emptyIcon} />
               <Text
                 style={[styles.emptyTitle, { color: colors.textSecondary }]}
               >
@@ -152,7 +153,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     paddingBottom: 60,
   },
-  emptyEmoji: { fontSize: 48, marginBottom: 16 },
+  emptyIcon: { marginBottom: 16 },
   emptyTitle: { fontSize: 18, fontWeight: '500', marginBottom: 8 },
   emptySub: { fontSize: 14 },
 });
