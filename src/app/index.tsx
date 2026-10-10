@@ -47,12 +47,6 @@ export default function CalculatorScreen() {
         {/* ── Display ───────────────────────────────────────── */}
         <Display />
 
-        {/* ── Chevron Toggle ─────────────────────────────────── */}
-        <View style={styles.chevronContainer}>
-          <Text style={[styles.chevron, { color: colors.textSecondary }]}>
-            {'< >'} 
-          </Text>
-        </View>
 
         {/* ── Keypad ────────────────────────────────────────── */}
         <Keypad />
@@ -85,13 +79,5 @@ const styles = StyleSheet.create({
     fontSize: 24,
     fontWeight: '300',
   },
-  chevronContainer: {
-    paddingHorizontal: 24,
-    paddingBottom: 8,
-    alignItems: 'flex-start',
-  },
-  chevron: {
-    fontSize: 20,
-    transform: [{ rotate: '90deg' }],
-  },
+
 });
