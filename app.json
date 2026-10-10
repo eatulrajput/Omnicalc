@@ -32,7 +32,10 @@
           "image": "./assets/images/splash-screen.png",
           "imageWidth": 400
         }
-      ]
+      ],
+      "expo-font",
+      "expo-image",
+      "expo-web-browser"
     ],
     "experiments": {
       "typedRoutes": true,
