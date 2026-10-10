@@ -20,6 +20,11 @@ export function tokenize(expression: string): Token[] {
 
     // Numbers (including decimals)
     if (isDigit(char) || (char === '.' && i + 1 < chars.length && isDigit(chars[i + 1]!))) {
+      const lastToken = tokens[tokens.length - 1];
+      if (lastToken && lastToken.type === TokenType.RIGHT_PAREN) {
+        tokens.push({ type: TokenType.OPERATOR, value: '×' });
+      }
+
       let num = '';
       let hasDot = false;
       while (i < chars.length && (isDigit(chars[i]!) || chars[i] === '.')) {
@@ -43,6 +48,11 @@ export function tokenize(expression: string): Token[] {
 
     // Left parenthesis
     if (char === '(') {
+      const lastToken = tokens[tokens.length - 1];
+      if (lastToken && (lastToken.type === TokenType.RIGHT_PAREN || lastToken.type === TokenType.NUMBER)) {
+        tokens.push({ type: TokenType.OPERATOR, value: '×' });
+      }
+
       tokens.push({ type: TokenType.LEFT_PAREN, value: '(' });
       i++;
       continue;

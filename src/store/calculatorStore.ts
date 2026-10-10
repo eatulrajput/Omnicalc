@@ -163,7 +163,17 @@ export const useCalculatorStore = create<CalculatorState>()(
           // Evaluate the base (everything before the last operator)
           const baseExpr = s.expression.substring(0, lastOpIndex);
           if (baseExpr) {
-            const baseResult = calculate(baseExpr);
+            // Auto-close open parentheses in baseExpr to prevent parser errors
+            const openParens = (baseExpr.match(/\(/g) || []).length;
+            const closeParens = (baseExpr.match(/\)/g) || []).length;
+            const parensToClose = openParens - closeParens;
+            
+            let safeBaseExpr = baseExpr;
+            for (let i = 0; i < parensToClose; i++) {
+              safeBaseExpr += ')';
+            }
+
+            const baseResult = calculate(safeBaseExpr);
             if (!baseResult.error) {
               const base = new Decimal(baseResult.value);
               const pctValue = base.times(currentValue).dividedBy(100);
@@ -331,7 +341,7 @@ export const useCalculatorStore = create<CalculatorState>()(
           expression: '',
           currentInput: '0',
           displayValue: '0',
-          previousExpression: '',
+          previousExpression: s.previousExpression,
           justEvaluated: false,
           error: null,
           openParenCount: 0,

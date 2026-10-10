@@ -1,8 +1,10 @@
 import React, { useRef } from 'react';
-import { View, Text, StyleSheet, PanResponder } from 'react-native';
+import { View, StyleSheet, PanResponder } from 'react-native';
+import Animated, { useAnimatedStyle, withTiming } from 'react-native-reanimated';
 import * as Haptics from 'expo-haptics';
 import { useTheme } from '../theme/useTheme';
 import { useCalculatorStore } from '../store/calculatorStore';
+import { calculate } from '../engine';
 import {
   formatDisplayNumber,
   formatExpression,
@@ -12,8 +14,8 @@ import {
 /**
  * Calculator display area.
  *
- * - Secondary line (top):  the expression being built or the last evaluated expression.
- * - Primary line (bottom): the current number or result, with auto-scaling font.
+ * - Primary line (top):  the expression being built or the last evaluated expression.
+ * - Secondary line (bottom): the live preview or current result, with auto-scaling font.
  *
  * Swipe left on the display to backspace.
  */
@@ -27,6 +29,7 @@ export function Display() {
   const justEvaluated = useCalculatorStore((s) => s.justEvaluated);
   const error = useCalculatorStore((s) => s.error);
   const backspace = useCalculatorStore((s) => s.backspace);
+  const openParenCount = useCalculatorStore((s) => s.openParenCount);
 
   // ── Swipe-left to backspace ──────────────────────────────
   const panResponder = useRef(
@@ -42,11 +45,12 @@ export function Display() {
     }),
   ).current;
 
-  // ── Build expression text for secondary display ──────────
+  // ── Build expression text for primary display ──────────
   let expressionText = '';
+  let fullExpression = '';
   if (justEvaluated && previousExpression) {
-    expressionText = formatExpression(previousExpression) + ' =';
-  } else if (expression) {
+    expressionText = formatExpression(previousExpression);
+  } else if (expression || currentInput) {
     let full = expression;
     if (currentInput) {
       full +=
@@ -55,43 +59,93 @@ export function Display() {
           : currentInput;
     }
     expressionText = formatExpression(full);
+    fullExpression = full;
   }
 
-  // ── Format primary display ───────────────────────────────
-  const formattedDisplay = error
-    ? displayValue
-    : formatDisplayNumber(displayValue);
-  const fontSize = calculateFontSize(formattedDisplay);
+  // ── Live preview logic ──────────────────────────────────
+  let previewText = '';
+  if (justEvaluated) {
+    previewText = error ? displayValue : formatDisplayNumber(displayValue);
+  } else if (fullExpression) {
+    // Auto-close any open parentheses for preview
+    let safeExpr = fullExpression;
+    for (let i = 0; i < openParenCount; i++) {
+      safeExpr += ')';
+    }
+    // Strip trailing operator for preview
+    safeExpr = safeExpr.replace(/[+\-×÷]+$/, '');
+
+    if (safeExpr) {
+      const result = calculate(safeExpr);
+      if (!result.error) {
+        previewText = formatDisplayNumber(result.value);
+      } else {
+        previewText = '';
+      }
+    }
+  }
+
+  const formattedDisplay = error ? displayValue : previewText;
+  const largeTextForSizing = justEvaluated
+    ? formattedDisplay
+    : expressionText || '0';
+  const fontSize = calculateFontSize(largeTextForSizing);
+
+  // ── Animated Styles ──────────────────────────────────────
+  const topStyle = useAnimatedStyle(() => {
+    return {
+      fontSize: withTiming(justEvaluated ? 32 : fontSize, { duration: 300 }),
+      color: withTiming(
+        justEvaluated
+          ? colors.textSecondary
+          : error
+            ? colors.error
+            : colors.textPrimary,
+        { duration: 300 }
+      ),
+      opacity: withTiming(justEvaluated ? 0.85 : 1, { duration: 300 }),
+    };
+  }, [justEvaluated, fontSize, error, colors]);
+
+  const bottomStyle = useAnimatedStyle(() => {
+    return {
+      fontSize: withTiming(justEvaluated ? fontSize : 32, { duration: 300 }),
+      color: withTiming(
+        justEvaluated
+          ? error
+            ? colors.error
+            : colors.textPrimary
+          : colors.textSecondary,
+        { duration: 300 }
+      ),
+      opacity: withTiming(justEvaluated ? 1 : 0.85, { duration: 300 }),
+    };
+  }, [justEvaluated, fontSize, error, colors]);
 
   return (
     <View
       {...panResponder.panHandlers}
       style={[styles.container, { backgroundColor: colors.displayBg }]}
     >
-      {/* Expression line */}
-      <Text
-        style={[styles.expression, { color: colors.textSecondary }]}
-        numberOfLines={2}
+      {/* Top text (Expression) */}
+      <Animated.Text
+        style={[styles.topTextLayout, styles.baseTypography, topStyle]}
+        numberOfLines={1}
         adjustsFontSizeToFit
+        minimumFontScale={0.3}
       >
-        {expressionText || ' '}
-      </Text>
+        {expressionText || (justEvaluated ? ' ' : '0')}
+      </Animated.Text>
 
-      {/* Main display */}
-      <Text
-        style={[
-          styles.display,
-          {
-            color: error ? colors.error : colors.textPrimary,
-            fontSize,
-          },
-        ]}
+      {/* Bottom text (Result/Preview) */}
+      <Animated.Text
+        style={[styles.baseTypography, bottomStyle]}
         numberOfLines={1}
         adjustsFontSizeToFit
         minimumFontScale={0.3}
       >
         {formattedDisplay}
-      </Text>
+      </Animated.Text>
     </View>
   );
 }
@@ -105,18 +159,11 @@ const styles = StyleSheet.create({
     paddingBottom: 16,
     paddingTop: 8,
   },
-  expression: {
-    fontSize: 22,
-    fontWeight: '300',
-    textAlign: 'right',
-    alignSelf: 'stretch',
+  topTextLayout: {
     marginBottom: 12,
-    letterSpacing: 1,
-    opacity: 0.85,
   },
-  display: {
-    fontSize: 56,
-    fontWeight: '200',
+  baseTypography: {
+    fontWeight: '300',
     textAlign: 'right',
     alignSelf: 'stretch',
     letterSpacing: 0.5,

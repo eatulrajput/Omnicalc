@@ -10,11 +10,10 @@ export function useTheme(): { colors: ThemeColors; isDark: boolean } {
   const mode = useThemeStore((s) => s.mode);
   const systemScheme = useColorScheme();
 
-  const isDark =
-    mode === 'system' ? systemScheme === 'dark' : mode === 'dark';
+  const isDark = false; // Forced to light mode per user request
 
   return {
-    colors: isDark ? darkTheme : lightTheme,
+    colors: lightTheme,
     isDark,
   };
 }
