@@ -78,7 +78,7 @@ export function HistoryPanel({ visible, onClose }: HistoryPanelProps) {
                   onPress={clearHistory}
                   style={styles.clearBtn}
                 >
-                  <Text style={[styles.clearText, { color: colors.error }]}>
+                  <Text style={[styles.clearText, { color: colors.accent }]}>
                     Clear All
                   </Text>
                 </TouchableOpacity>
