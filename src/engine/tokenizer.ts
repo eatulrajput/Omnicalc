@@ -35,6 +35,31 @@ export function tokenize(expression: string): Token[] {
         num += chars[i];
         i++;
       }
+
+      // Check for scientific notation exponent: e or E followed by optional + or - and digits
+      if (
+        i < chars.length &&
+        (chars[i] === 'e' || chars[i] === 'E') &&
+        i + 1 < chars.length
+      ) {
+        let expIndex = i + 1;
+        if (
+          (chars[expIndex] === '+' || chars[expIndex] === '-') &&
+          expIndex + 1 < chars.length &&
+          isDigit(chars[expIndex + 1]!)
+        ) {
+          expIndex++;
+        }
+        if (isDigit(chars[expIndex]!)) {
+          num += chars.slice(i, expIndex + 1);
+          i = expIndex + 1;
+          while (i < chars.length && isDigit(chars[i]!)) {
+            num += chars[i];
+            i++;
+          }
+        }
+      }
+
       tokens.push({ type: TokenType.NUMBER, value: num });
       continue;
     }
