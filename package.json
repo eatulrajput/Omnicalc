@@ -1,6 +1,7 @@
 {
   "name": "omnicalc",
   "main": "expo-router/entry",
+  "author": "Atul Rajput",
   "version": "1.0.1",
   "dependencies": {
     "@expo/ui": "~57.0.22",
