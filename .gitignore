@@ -41,3 +41,10 @@ example
 # generated native folders
 /ios
 /android
+
+# testing & coverage
+coverage/
+*.lcov
+.nyc_output/
+junit.xml
+
